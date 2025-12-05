@@ -3,7 +3,7 @@ namespace UAMarketSimple
     // 1. ACTUALIZA LA CLASE PRODUCTO
     public class Producto
     {
-        // Generamos un ID único automático cada vez que se crea un producto
+        // Generamos un ID único automático cada que se crea un producto
         public string Id { get; set; } = Guid.NewGuid().ToString(); 
         
         public string Nombre { get; set; } = "";
@@ -23,10 +23,10 @@ namespace UAMarketSimple
         public string Telefono { get; set; } = "";
     }
 
-    // --- 2. BASE DE DATOS Y LÓGICA (Todo en uno) ---
+    // 2. BASE DE DATOS Y LÓGICA 
     public static class Datos
     {
-        // ESTAS SON LAS LÍNEAS QUE FALTABAN:
+        
         public static List<Producto> ListaProductos = new List<Producto>();
         public static List<Usuario> ListaUsuarios = new List<Usuario>();
         
@@ -97,7 +97,7 @@ namespace UAMarketSimple
             }
         }
 
-        // ========== SISTEMA DE FAVORITOS ==========
+        //  SISTEMA DE FAVORITOS 
 
         // Lista de IDs de productos favoritos (por usuario CIF)
         private static Dictionary<string, List<string>> _favoritosPorUsuario = new();
