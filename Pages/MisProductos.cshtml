@@ -1,0 +1,200 @@
+@page
+@using UAMarketSimple
+@functions {
+
+
+    public List<Producto> MisCosas = new List<Producto>();
+
+    // Variable para recibir el ID cuando le den click al botón
+    [BindProperty] public string? IdBorrar { get; set; }
+
+    public IActionResult OnGet()
+    {
+        if (Datos.UsuarioLogueado == null) return RedirectToPage("/Login");
+
+        // Filtramos mis productos
+        MisCosas = new List<Producto>();
+        foreach (var p in Datos.ListaProductos)
+        {
+            if (p.CifVendedor == Datos.UsuarioLogueado.CIF)
+            {
+                MisCosas.Add(p);
+            }
+        }
+        return Page();
+    }
+
+    // ESTO SE ACTIVA CUANDO TOCAS EL BOTÓN "BORRAR"
+    public IActionResult OnPost()
+    {
+        if (IdBorrar != null)
+        {
+            Datos.EliminarProducto(IdBorrar);
+        }
+        // Recargamos la página para ver que desapareció
+        return RedirectToPage("/MisProductos");
+    }
+}
+
+<div style="padding: 30px; max-width: 1200px; margin: 0 auto;">
+    <!-- ENCABEZADO CON BOTÓN DESTACADO -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 style="color: #003366; font-size: 32px;">Mis Publicaciones</h1>
+        <a href="/Publicar" style="background: linear-gradient(135deg, #FFD700 0%, #ffed4e 100%); color: #003366; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            + Publicar Nuevo Producto
+        </a>
+    </div>
+    
+    
+    <!-- LISTA DE PRODUCTOS -->
+    @if (MisCosas.Count == 0)
+    {
+        <div style="text-align: center; padding: 60px 20px; background: #f8f9fa; border-radius: 12px; margin-top: 30px;">
+            <p style="font-size: 18px; color: #666; margin-bottom: 20px;">No tienes productos publicados todavía</p>
+            <a href="/Publicar" style="background: #0056b3; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+                ¡Publica tu primer producto!
+            </a>
+        </div>
+    }
+
+        <div class="mis-productos-grid">
+        @foreach (var p in MisCosas)
+        {
+            <div class="mis-producto-card">
+                <!-- IMAGEN -->
+                <div class="mis-producto-imagen-container">
+                    <img src="~/imagenes/@p.FotoUrl" 
+                         class="mis-producto-imagen"
+                         onerror="this.src='https://via.placeholder.com/400x300/003366/FFFFFF?text=Producto+UAM'" />
+                </div>
+                
+                <!-- INFORMACIÓN -->
+                <div class="mis-producto-info">
+                    <h3 class="mis-producto-nombre">@p.Nombre</h3>
+                    <p class="mis-producto-precio">C$ @p.Precio</p>
+                    <p class="mis-producto-descripcion">@p.Descripcion</p>
+                    
+                    <!-- BOTÓN BORRAR -->
+                    <form method="post" onsubmit="return confirm('¿Seguro que quieres eliminar este producto?');">
+                        <input type="hidden" name="IdBorrar" value="@p.Id" />
+                        <button type="submit" class="btn-borrar-producto">
+                            Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    /* ESTILOS PARA MIS PRODUCTOS */
+    .mis-productos-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 25px;
+        margin-top: 30px;
+    }
+    
+    .mis-producto-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .mis-producto-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    
+    .mis-producto-imagen-container {
+        height: 160px;
+        overflow: hidden;
+    }
+    
+    .mis-producto-imagen {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .mis-producto-card:hover .mis-producto-imagen {
+        transform: scale(1.05);
+    }
+    
+    .mis-producto-info {
+        padding: 20px;
+    }
+    
+    .mis-producto-nombre {
+        color: #003366;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+    
+    .mis-producto-precio {
+        color: #28a745;
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .mis-producto-descripcion {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.4;
+        margin-bottom: 20px;
+        height: 40px;
+        overflow: hidden;
+    }
+    
+    .btn-borrar-producto {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-borrar-producto:hover {
+        background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+        transform: scale(1.02);
+    }
+    
+    .borrar-icon {
+        font-size: 16px;
+    }
+    
+    /* RESPONSIVE */
+    @@media (max-width: 1200px) {
+        .mis-productos-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+    
+    @@media (max-width: 900px) {
+        .mis-productos-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @@media (max-width: 600px) {
+        .mis-productos-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

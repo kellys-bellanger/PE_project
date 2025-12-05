@@ -1,0 +1,481 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Inicio - UAMarket";
+}
+
+<style>
+    /* BIENVENIDA JAGUARS */
+    .welcome-jaguars {
+        text-align: center;
+        padding: 20px 0 10px 0;
+        color: #003366;
+    }
+    
+    .welcome-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #003366;
+        margin-bottom: 5px;
+    }
+    
+    .welcome-subtitle {
+        font-size: 18px;
+        color: #0056b3;
+        opacity: 0.8;
+    }
+    
+    /* BARRA DE BÚSQUEDA MÁS LARGA Y ELEGANTE */
+    .search-hero {
+        text-align: center;
+        padding: 20px 20px 40px 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .search-container-large {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .search-box-large {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+    
+    .search-input-large {
+        flex: 1;
+        padding: 15px 20px;
+        font-size: 18px;
+        border: 2px solid #003366;
+        border-radius: 50px;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input-large:focus {
+        border-color: #0056b3;
+        box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.2);
+    }
+    
+    .search-btn-large {
+        background: linear-gradient(135deg, #003366 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 50px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .search-btn-large:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 86, 179, 0.3);
+    }
+    
+    /* PRODUCTOS */
+    .products-section {
+        padding: 40px 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+    }
+    
+    .product-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+    
+    .section-title {
+        color: #003366;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    /* ESTILOS PARA LAS NUEVAS TARJETAS (4 POR FILA) */
+    .products-grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 25px;
+        margin-top: 30px;
+    }
+
+    /* TARJETA ELEGANTE */
+    .product-card-elegant {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .product-card-elegant:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    .product-image-container {
+        height: 180px;
+        overflow: hidden;
+    }
+
+    .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .product-card-elegant:hover .product-image {
+        transform: scale(1.05);
+    }
+
+    .product-content-elegant {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-name-elegant {
+        color: #003366;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .product-icon {
+        font-size: 16px;
+    }
+
+    .product-price-elegant {
+        color: #28a745;
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .price-icon {
+        font-size: 18px;
+    }
+
+    .product-description-elegant {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.4;
+        margin-bottom: 15px;
+        flex-grow: 1;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .desc-icon {
+        font-size: 14px;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .product-seller {
+        color: #6c757d;
+        font-size: 13px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .seller-icon {
+        font-size: 14px;
+    }
+
+    .product-actions-elegant {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+    }
+
+    .btn-contact-elegant {
+        background: #25D366;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-contact-elegant:hover {
+        background: #128C7E;
+        transform: scale(1.05);
+    }
+
+    .btn-like-elegant {
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-like-elegant:hover {
+        background: #ff4757;
+        transform: scale(1.05);
+    }
+
+    /* ESTILO PARA CORAZÓN ACTIVO */
+    .favorito-activo {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%) !important;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4) !important;
+    }
+
+    /* Animación al hacer clic */
+    @@keyframes heartbeat {
+        0% { transform: scale(1); }
+        25% { transform: scale(1.1); }
+        50% { transform: scale(1); }
+        75% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .btn-like-elegant:active {
+        animation: heartbeat 0.3s ease;
+    }
+
+    /* RESPONSIVE */
+    @@media (max-width: 1200px) {
+        .products-grid-4 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @@media (max-width: 900px) {
+        .products-grid-4 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .products-grid-4 {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- BIENVENIDA JAGUARS (ARRIBA DE LA BÚSQUEDA) -->
+<div class="welcome-jaguars">
+    <div class="welcome-title">¡Bienvenidos Jaguars!</div>
+    <div class="welcome-subtitle">Comunidad Universitaria UAM</div>
+</div>
+
+<!-- BARRA DE BÚSQUEDA -->
+<div class="search-hero">
+    <div class="search-container-large">
+        <form method="get" class="search-box-large">
+            <input type="text" 
+                   name="Busqueda" 
+                   placeholder="Busque sus productos deseados aquí..." 
+                   value="@Model.Busqueda"
+                   class="search-input-large" />
+            <button type="submit" class="search-btn-large">Buscar</button>
+        </form>
+    </div>
+</div>
+
+<!-- PRODUCTOS DISPONIBLES -->
+<div class="products-section">
+    <h2 class="section-title">Productos Disponibles</h2>
+    
+    @if (Model.MisProductos.Count == 0)
+    {
+        <div style="text-align: center; color: #666; padding: 40px;">
+            <p>No se encontraron productos. ¡Sé el primero en publicar algo!</p>
+        </div>
+    }
+    else
+    {
+        <!-- NUEVO GRID DE 4 TARJETAS POR FILA -->
+        <div class="products-grid-4">
+            @foreach (var p in Model.MisProductos)
+            {
+                <div class="product-card-elegant">
+                    <!-- IMAGEN -->
+                    <div class="product-image-container">
+                        <img src="~/imagenes/@p.FotoUrl" 
+                             alt="@p.Nombre"
+                             class="product-image"
+                             onerror="this.src='https://via.placeholder.com/400x300/003366/FFFFFF?text=UAM+Producto'" />
+                    </div>
+                    
+                    <!-- CONTENIDO -->
+                    <div class="product-content-elegant">
+                        <!-- NOMBRE CON EMOJI -->
+                        <h3 class="product-name-elegant">
+                             @p.Nombre
+                        </h3>
+                        
+                        <!-- PRECIO CON EMOJI -->
+                        <div class="product-price-elegant">
+                            <span class="price-amount">C$ @p.Precio</span>
+                        </div>
+                        
+                        <!-- DESCRIPCIÓN CORTA CON EMOJI -->
+                        <p class="product-description-elegant">
+                            @{
+                                var desc = p.Descripcion.Length > 60 ? p.Descripcion.Substring(0, 60) + "..." : p.Descripcion;
+                            }
+                            @desc
+                        </p>
+                        
+                        <!-- VENDEDOR CON EMOJI -->
+                        <div class="product-seller">
+                            <span class="seller-icon">👤</span>
+                            <span class="seller-text">Vendedor UAM</span>
+                        </div>
+                        
+                        <!-- BOTONES -->
+                        <div class="product-actions-elegant">
+                            <a href="https://wa.me/505@p.Telefono" 
+                               class="btn-contact-elegant" 
+                               target="_blank">
+                                Contactar
+                            </a>
+                            
+                            <form method="post" asp-page-handler="ToggleFavorito" style="display: inline;">
+    <input type="hidden" name="productoId" value="@p.Id" />
+    <button type="button" 
+        class="btn-like-elegant @(UAMarketSimple.Datos.EsFavorito(p.Id) ? "favorito-activo" : "")"
+        data-producto-id="@p.Id"
+        onclick="toggleFavorito('@p.Id', this)">
+    <span class="heart-icon">@(UAMarketSimple.Datos.EsFavorito(p.Id) ? "❤️" : "🤍")</span>
+    <span class="like-count" id="count-@p.Id">@UAMarketSimple.Datos.ContarFavoritosProducto(p.Id)</span>
+    </button>
+</form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+<script>
+    // Función para toggle favorito con AJAX
+    async function toggleFavorito(productoId, boton) {
+        try {
+            // Enviar solicitud POST al servidor
+            const response = await fetch('/Index?handler=ToggleFavoritoAjax', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: `productoId=${productoId}`
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Actualizar icono
+                const heartIcon = boton.querySelector('.heart-icon');
+                heartIcon.textContent = data.esFavorito ? '❤️' : '🤍';
+                
+                // Actualizar contador
+                const countSpan = document.getElementById(`count-${productoId}`);
+                if (countSpan) {
+                    countSpan.textContent = data.totalFavoritos;
+                }
+                
+                // Actualizar clase del botón
+                if (data.esFavorito) {
+                    boton.classList.add('favorito-activo');
+                } else {
+                    boton.classList.remove('favorito-activo');
+                }
+                
+                // Actualizar contador del header
+                updateHeaderFavoritosCount(data.totalUsuario);
+                
+                // Animación
+                boton.style.animation = 'none';
+                setTimeout(() => {
+                    boton.style.animation = 'heartbeat 0.3s ease';
+                }, 10);
+                
+            } else {
+                console.error('Error en la respuesta del servidor');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            // Si falla AJAX, hacer recarga normal como fallback
+            window.location.href = `/Index?handler=ToggleFavorito&productoId=${productoId}`;
+        }
+    }
+    
+    // Función para actualizar contador del header
+    function updateHeaderFavoritosCount(count) {
+        const headerCounter = document.querySelector('.favoritos-contador');
+        const heartBtn = document.querySelector('.heart-btn');
+        
+        if (headerCounter) {
+            if (count > 0) {
+                headerCounter.textContent = count;
+                headerCounter.style.display = 'flex';
+            } else {
+                headerCounter.style.display = 'none';
+            }
+        }
+        
+        // Si no hay contador en el header pero hay botón, crear uno
+        if (!headerCounter && heartBtn && count > 0) {
+            const newCounter = document.createElement('span');
+            newCounter.className = 'favoritos-contador';
+            newCounter.textContent = count;
+            heartBtn.appendChild(newCounter);
+        }
+    }
+    
+    // Cargar contador inicial del header
+    document.addEventListener('DOMContentLoaded', function() {
+        // Podrías cargar esto via AJAX también si quieres
+    });
+</script>

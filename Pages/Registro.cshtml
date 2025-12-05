@@ -1,0 +1,331 @@
+@page
+@using UAMarketSimple
+@functions {
+    // --- CÓDIGO C# ---
+    [BindProperty] public string NuevoNombre { get; set; } = "";
+    [BindProperty] public string NuevoCIF { get; set; } = "";
+    [BindProperty] public string NuevoPIN { get; set; } = "";
+    [BindProperty] public string NuevoTelefono { get; set; } = "";
+    
+    public string Mensaje { get; set; } = "";
+
+    public IActionResult OnPost()
+    {
+        // ========== VALIDACIONES MEJORADAS ==========
+        
+        // 1. Validar campos vacíos
+        if (string.IsNullOrWhiteSpace(NuevoNombre) || 
+            string.IsNullOrWhiteSpace(NuevoCIF) || 
+            string.IsNullOrWhiteSpace(NuevoPIN) ||
+            string.IsNullOrWhiteSpace(NuevoTelefono))
+        {
+            Mensaje = "Todos los campos son obligatorios";
+            return Page();
+        }
+        
+        // 2. Validar NOMBRE: Debe tener al menos 2 palabras
+        var palabrasNombre = NuevoNombre.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (palabrasNombre.Length < 2)
+        {
+            Mensaje = "Por favor ingresa tu nombre Y apellido";
+            return Page();
+        }
+        
+        // 3. Validar CIF: 8 dígitos exactos
+        if (NuevoCIF.Length != 8 || !NuevoCIF.All(char.IsDigit))
+        {
+            Mensaje = "El CIF debe tener exactamente 8 dígitos";
+            return Page();
+        }
+        
+        // 4. Validar PIN: Al menos 4 caracteres
+        if (NuevoPIN.Length < 4)
+        {
+            Mensaje = "El PIN debe tener al menos 4 caracteres";
+            return Page();
+        }
+        
+        // 5. Validar TELÉFONO: 8 dígitos exactos
+        if (NuevoTelefono.Length != 8 || !NuevoTelefono.All(char.IsDigit))
+        {
+            Mensaje = "El teléfono debe tener 8 dígitos";
+            return Page();
+        }
+        
+        // 6. Validar que el CIF no esté repetido
+        foreach (var usuario in Datos.ListaUsuarios)
+        {
+            if (usuario.CIF == NuevoCIF)
+            {
+                Mensaje = "Este CIF ya está registrado";
+                return Page();
+            }
+        }
+
+        // 7. Guardar el nuevo usuario
+        Datos.ListaUsuarios.Add(new Usuario { 
+            Nombre = NuevoNombre.Trim(), 
+            CIF = NuevoCIF.Trim(), 
+            PIN = NuevoPIN,
+            Telefono = NuevoTelefono.Trim()
+        });
+        
+        Mensaje = "¡Cuenta creada con éxito! Ya puedes iniciar sesión.";
+        
+        // 8. Limpiar campos
+        NuevoNombre = "";
+        NuevoCIF = "";
+        NuevoPIN = "";
+        NuevoTelefono = "";
+        
+        return Page();
+    }
+}
+
+<!-- ========== DISEÑO DEL REGISTRO ========== -->
+<div class="register-container">
+    <div class="register-card">
+        <!-- ENCABEZADO -->
+        <div class="register-header">
+            <h1>Únete a UAMARKET</h1>
+            <p class="register-subtitle">Comunidad de Emprendedores</p>
+        </div>
+
+        <!-- MENSAJE DE ÉXITO/ERROR -->
+        @if(Mensaje != "") 
+        { 
+            <div class="@(Mensaje.Contains("✅") ? "alert-success" : "alert-error")">
+                @Mensaje
+            </div> 
+        }
+
+        <!-- FORMULARIO -->
+        <form method="post" class="register-form">
+            <!-- NOMBRE COMPLETO -->
+            <div class="form-group">
+                <label for="NuevoNombre">Nombre y Apellido</label>
+                <input type="text" 
+                       asp-for="NuevoNombre"
+                       placeholder="Ej: Juan Rodríguez" 
+                       class="form-control-elegant"
+                       required
+                       pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{3,}(?:\s+[A-Za-zÁÉÍÓÚáéíóúñÑ\s]{2,})+"
+                       title="Ingresa nombre y al menos un apellido"
+                       value="@NuevoNombre" />
+                <small class="form-hint">Tu primer Nombre y tu primer Apellido</small>
+            </div>
+
+            <!-- CIF UNIVERSITARIO -->
+            <div class="form-group">
+                <label for="NuevoCIF">CIF UAM</label>
+                <input type="text" 
+                       asp-for="NuevoCIF" 
+                       placeholder="Ej: 25010380" 
+                       class="form-control-elegant"
+                       required
+                       pattern="[0-9]{8}"
+                       title="8 dígitos exactos"
+                       maxlength="8"
+                       value="@NuevoCIF" />
+                <small class="form-hint">8 dígitos de tu carnet UAM</small>
+            </div>
+
+            <!-- PIN DE SEGURIDAD -->
+            <div class="form-group">
+                <label for="NuevoPIN">Crear Contraseña</label>
+                <input type="password" 
+                       asp-for="NuevoPIN" 
+                       placeholder="Crea un PIN seguro" 
+                       class="form-control-elegant"
+                       required
+                       minlength="4" />
+                <small class="form-hint">Mínimo 4 caracteres</small>
+            </div>
+
+            <!-- TELÉFONO PARA WHATSAPP -->
+            <div class="form-group">
+                <label for="NuevoTelefono">Número Celular (WhatsApp)</label>
+                <input type="tel" 
+                       asp-for="NuevoTelefono" 
+                       placeholder="Ej: 88888888" 
+                       class="form-control-elegant"
+                       required
+                       pattern="[0-9]{8}"
+                       title="8 dígitos sin espacios"
+                       maxlength="8"
+                       value="@NuevoTelefono" />
+            </div>
+
+            <!-- BOTÓN DE REGISTRO -->
+            <button type="submit" class="btn-register">
+                ¡Crear mi Cuenta!
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- ========== ESTILOS ========== -->
+<style>
+    .register-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%);
+    }
+
+    .register-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        width: 100%;
+        max-width: 480px;
+        box-shadow: 0 10px 40px rgba(0,51,102,0.15);
+        border: 1px solid rgba(0,86,179,0.1);
+    }
+
+    .register-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .register-header h1 {
+        color: #003366;
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .register-subtitle {
+        color: #0056b3;
+        font-size: 16px;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: 500;
+    }
+
+    .alert-error {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: 500;
+    }
+
+    .register-form {
+        margin-top: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        color: #003366;
+        font-weight: 500;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control-elegant {
+        width: 100%;
+        padding: 14px 20px;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .form-control-elegant:focus {
+        outline: none;
+        border-color: #0056b3;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(0,86,179,0.15);
+    }
+
+    .form-hint {
+        color: #6c757d;
+        font-size: 13px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .btn-register {
+        width: 100%;
+        background: linear-gradient(135deg, #003366 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 12px;
+        font-size: 17px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+    }
+
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,86,179,0.3);
+    }
+
+    .register-footer {
+        margin-top: 30px;
+        text-align: center;
+        color: #6c757d;
+        font-size: 15px;
+    }
+
+    .login-link {
+        color: #0056b3;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .login-link:hover {
+        text-decoration: underline;
+    }
+
+    .benefits {
+        background: #f8f9fa;
+        padding: 12px 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+        font-size: 14px;
+        color: #495057;
+    }
+
+    .home-link {
+        margin-top: 15px;
+        font-size: 14px;
+    }
+
+    .home-link a {
+        color: #6c757d;
+        text-decoration: none;
+    }
+
+    .home-link a:hover {
+        color: #003366;
+    }
+
+    @@media (max-width: 500px) {
+        .register-card {
+            padding: 30px 20px;
+        }
+        .register-header h1 {
+            font-size: 24px;
+        }
+    }
+</style>

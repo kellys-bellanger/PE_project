@@ -1,0 +1,236 @@
+/* wwwroot/css/site.css - ESTILOS PRINCIPALES UAMARKET */
+
+/* 1. VARIABLES DE COLOR UAM */
+:root {
+    --uam-azul-oscuro: #003366;
+    --uam-azul-medio: #0056b3;
+    --uam-azul-claro: #4d94ff;
+    --uam-dorado: #FFD700;
+    --uam-blanco: #ffffff;
+    --uam-gris-claro: #f8f9fa;
+    --uam-gris-medio: #e9ecef;
+    --uam-gris-oscuro: #343a40;
+    --uam-verde: #28a745;
+    --uam-rojo: #dc3545;
+}
+
+/* 2. ESTILOS GENERALES */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #343a40;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 3. HEADER (Ya está en el layout, pero por si acaso) */
+.uam-header {
+    background: linear-gradient(135deg, #003366 0%, #0056b3 100%);
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* 4. TARJETAS DE PRODUCTO ELEGANTES */
+.productos-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+    margin: 2rem 0;
+}
+
+.producto-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 280px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.producto-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.producto-imagen {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.producto-info {
+    padding: 1.5rem;
+}
+
+.producto-nombre {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #003366;
+    margin-bottom: 0.5rem;
+}
+
+.producto-precio {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #28a745;
+    margin: 0.5rem 0;
+}
+
+.producto-descripcion {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+/* 5. BOTONES MEJORADOS */
+.btn-whatsapp {
+    background-color: #25D366;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-whatsapp:hover {
+    background-color: #128C7E;
+    transform: scale(1.05);
+}
+
+.btn-borrar {
+    background-color: #dc3545;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-borrar:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+}
+
+.btn-like {
+    background-color: #ff6b6b;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-like:hover {
+    background-color: #ff4757;
+}
+
+/* 6. FORMULARIOS ELEGANTES */
+.form-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #003366;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #4d94ff;
+    box-shadow: 0 0 0 3px rgba(77, 148, 255, 0.2);
+}
+
+/* 7. BÚSQUEDA ELEGANTE */
+.busqueda-container {
+    background: linear-gradient(135deg, #4d94ff 0%, #0056b3 100%);
+    padding: 2rem;
+    border-radius: 12px;
+    margin: 2rem 0;
+    text-align: center;
+    color: white;
+}
+
+.busqueda-titulo {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* 8. ESTADOS VACÍOS */
+.estado-vacio {
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+}
+
+.estado-vacio-icono {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* 9. RESPONSIVE */
+@media (max-width: 768px) {
+    .productos-container {
+        justify-content: center;
+    }
+    
+    .producto-card {
+        width: 100%;
+        max-width: 350px;
+    }
+    
+    .uam-nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
+}
+
+/* 10. UTILIDADES */
+.text-center { text-align: center; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }

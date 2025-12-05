@@ -1,0 +1,430 @@
+@page
+@using System.IO
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment _env
+@using UAMarketSimple
+@functions {
+    // Variables para el formulario
+    [BindProperty] public string Nombre { get; set; } = "";
+    [BindProperty] public int Precio { get; set; }
+    [BindProperty] public string Descripcion { get; set; } = "";
+    [BindProperty] public IFormFile ImagenSubida { get; set; } = default!;
+    
+    public string MensajeError { get; set; } = "";
+    public string MensajeExito { get; set; } = "";
+
+    public IActionResult OnGet()
+    {
+        // SEGURIDAD: Si no está logueado, lo mandamos al Login
+        if (Datos.UsuarioLogueado == null)
+        {
+            return RedirectToPage("/Login");
+        }
+        return Page();
+    }
+
+    public IActionResult OnPost()
+    {
+        try
+        {
+            // VALIDACIONES
+            if (string.IsNullOrWhiteSpace(Nombre) || Nombre.Length < 3)
+            {
+                MensajeError = "El nombre del producto debe tener al menos 3 caracteres";
+                return Page();
+            }
+            
+            if (Precio <= 0)
+            {
+                MensajeError = "El precio debe ser mayor a 0";
+                return Page();
+            }
+            
+            if (string.IsNullOrWhiteSpace(Descripcion) || Descripcion.Length < 10)
+            {
+                MensajeError = "La descripción debe tener al menos 10 caracteres";
+                return Page();
+            }
+            
+            if (ImagenSubida == null || ImagenSubida.Length == 0)
+            {
+                MensajeError = "Debes subir una imagen del producto";
+                return Page();
+            }
+
+            // 1. Crear el nuevo producto
+            Producto nuevo = new Producto();
+            nuevo.Nombre = Nombre.Trim();
+            nuevo.Precio = Precio;
+            nuevo.Descripcion = Descripcion.Trim();
+            
+            // --- LÓGICA FOTO REAL (CORREGIDA) ---
+            if (ImagenSubida != null)
+            {
+                // 1. Usamos System.IO.Path para evitar errores rojos
+                string nombreArchivo = "foto_" + DateTime.Now.Ticks + System.IO.Path.GetExtension(ImagenSubida.FileName);
+
+                // 2. Ruta de guardado
+                string rutaDestino = System.IO.Path.Combine(_env.WebRootPath, "imagenes", nombreArchivo);
+
+                // 3. Guardar archivo físico
+                using (var stream = new FileStream(rutaDestino, FileMode.Create))
+                {
+                    ImagenSubida.CopyTo(stream);
+                }
+
+                // 4. Guardar nombre en el objeto
+                nuevo.FotoUrl = nombreArchivo;
+            }
+            else
+            {
+                nuevo.FotoUrl = "default.png";
+            }
+            
+            // DATOS AUTOMÁTICOS (CON VALIDACIÓN):
+// Verificamos nuevamente que el usuario esté logueado
+if (Datos.UsuarioLogueado != null)
+{
+    nuevo.CifVendedor = Datos.UsuarioLogueado.CIF;
+    nuevo.Telefono = !string.IsNullOrEmpty(Datos.UsuarioLogueado.Telefono) 
+                     ? Datos.UsuarioLogueado.Telefono 
+                     : "88888888";
+}
+else
+{
+    // Esto no debería pasar, pero por seguridad:
+    MensajeError = "Sesión expirada. Por favor, inicia sesión nuevamente.";
+    return Page();
+}
+
+            // 2. Guardar en la lista global
+            Datos.ListaProductos.Add(nuevo);
+            
+            MensajeExito = "¡Producto publicado con éxito! Redirigiendo a tus publicaciones...";
+
+            // 3. Redirigir después de 2 segundos
+            Response.Headers.Add("Refresh", "2;url=/MisProductos");
+            return Page();
+        }
+        catch (Exception ex)
+        {
+            MensajeError = "Error al publicar el producto: " + ex.Message;
+            return Page();
+        }
+    }
+}
+
+<!-- ========== DISEÑO MEJORADO DEL FORMULARIO ========== -->
+<div class="publicar-container">
+    <div class="publicar-card">
+        <!-- ENCABEZADO ELEGANTE -->
+        <div class="publicar-header">
+            <h1>Publicar Nuevo Producto</h1>
+            <p class="publicar-subtitle">
+                Vendedor: <span class="vendedor-nombre">@Datos.UsuarioLogueado?.Nombre</span>
+            </p>
+        </div>
+
+        <!-- MENSAJES DE ÉXITO/ERROR -->
+        @if (!string.IsNullOrEmpty(MensajeError))
+        {
+            <div class="alert-error">
+                ⚠️ @MensajeError
+            </div>
+        }
+        
+        @if (!string.IsNullOrEmpty(MensajeExito))
+        {
+            <div class="alert-success">
+                ✅ @MensajeExito
+            </div>
+        }
+
+        <!-- FORMULARIO ELEGANTE -->
+        <form method="post" enctype="multipart/form-data" class="publicar-form">
+            <!-- NOMBRE DEL PRODUCTO -->
+            <div class="form-group">
+                <label for="Nombre">
+                    Nombre del Producto
+                </label>
+                <input type="text" 
+                       asp-for="Nombre"  
+                       class="form-control-elegant"
+                       required
+                       minlength="3"
+                       value="@Nombre" />
+            </div>
+
+            <!-- PRECIO -->
+            <div class="form-group">
+                <label for="Precio">
+                    Precio en Córdobas (C$)
+                </label>
+                <input type="number" 
+                       asp-for="Precio"  
+                       class="form-control-elegant"
+                       required
+                       min="1"
+                       value="@Precio" />
+            </div>
+
+            <!-- DESCRIPCIÓN -->
+            <div class="form-group">
+                <label for="Descripcion">
+                    Descripción Detallada
+                </label>
+                <textarea asp-for="Descripcion" 
+                          rows="4"
+                          placeholder="Describe tu producto: marca, modelo, estado, características especiales..."
+                          class="form-control-elegant"
+                          required
+                          minlength="10">@Descripcion</textarea>
+            </div>
+
+            <!-- IMAGEN -->
+            <div class="form-group">
+                <label for="ImagenSubida">
+                    Imagen del Producto
+                </label>
+                <div class="file-upload-container">
+                    <input type="file" 
+                           asp-for="ImagenSubida" 
+                           class="file-input"
+                           accept="image/*"
+                           required />
+                    <div class="file-upload-info">
+                        <p>Sube una foto clara de tu producto</p>
+                        <small>Formatos aceptados: JPG, PNG, JPEG</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="form-actions">
+                <button type="submit" class="btn-publicar">
+                    Publicar Producto
+                </button>
+                <a href="/MisProductos" class="btn-cancelar">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ========== ESTILOS PARA EL FORMULARIO ========== -->
+<style>
+    .publicar-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px 20px;
+        background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%);
+    }
+
+    .publicar-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: 0 10px 40px rgba(0,51,102,0.15);
+        border: 1px solid rgba(0,86,179,0.1);
+    }
+
+    .publicar-header {
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #f0f7ff;
+        padding-bottom: 20px;
+    }
+
+    .publicar-header h1 {
+        color: #003366;
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .publicar-subtitle {
+        color: #0056b3;
+        font-size: 16px;
+    }
+
+    .vendedor-nombre {
+        color: #003366;
+        font-weight: bold;
+    }
+
+    .alert-error {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: 500;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: 500;
+    }
+
+    .publicar-form {
+        margin-top: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #003366;
+        font-weight: 500;
+        margin-bottom: 8px;
+        font-size: 15px;
+    }
+
+    .label-icon {
+        font-size: 18px;
+    }
+
+    .form-control-elegant {
+        width: 100%;
+        padding: 14px 20px;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+        font-family: inherit;
+    }
+
+    .form-control-elegant:focus {
+        outline: none;
+        border-color: #4d94ff;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(77, 148, 255, 0.15);
+    }
+
+    textarea.form-control-elegant {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-hint {
+        display: block;
+        color: #6c757d;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    .file-upload-container {
+        border: 2px dashed #e9ecef;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .file-upload-container:hover {
+        border-color: #4d94ff;
+        background: #f0f7ff;
+    }
+
+    .file-input {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .file-upload-info p {
+        color: #003366;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .file-upload-info small {
+        color: #6c757d;
+        font-size: 12px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn-publicar {
+        flex: 1;
+        background: linear-gradient(135deg, #003366 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 12px;
+        font-size: 17px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-publicar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 86, 179, 0.3);
+    }
+
+    .btn-cancelar {
+        flex: 1;
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 12px;
+        font-size: 17px;
+        font-weight: bold;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .btn-cancelar:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    .btn-icon {
+        font-size: 18px;
+    }
+
+    @@media (max-width: 500px) {
+        .publicar-card {
+            padding: 30px 20px;
+        }
+        
+        .publicar-header h1 {
+            font-size: 24px;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>

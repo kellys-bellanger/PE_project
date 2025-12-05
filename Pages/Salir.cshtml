@@ -1,0 +1,9 @@
+@page
+@using UAMarketSimple
+@functions {
+    public IActionResult OnGet()
+    {
+        Datos.CerrarSesion();
+        return RedirectToPage("/Index");
+    }
+}

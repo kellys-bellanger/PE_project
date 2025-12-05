@@ -1,0 +1,275 @@
+@page
+@using UAMarketSimple
+@functions {
+    [BindProperty] public string CIF { get; set; } = "";
+    [BindProperty] public string PIN { get; set; } = "";
+    public string ErrorMsg { get; set; } = "";
+
+    public IActionResult OnPost()
+    {
+        // 1. Asegurar que haya datos cargados
+        Datos.CargarDatosDePrueba();
+
+        // 2. Intentar loguear usando la función que creamos en Datos.cs
+        bool exito = Datos.IniciarSesion(CIF, PIN);
+
+        if (exito)
+        {
+            // Si funcionó, nos manda al Inicio
+            return RedirectToPage("/Index");
+        }
+        else
+        {
+            ErrorMsg = "CIF o PIN incorrectos. Intenta nuevamente.";
+            return Page();
+        }
+    }
+}
+
+<!-- ========== NUEVO DISEÑO DEL LOGIN ========== -->
+<div class="login-container">
+    <div class="login-card">
+        <!-- ENCABEZADO ELEGANTE -->
+        <div class="login-header">
+            <h1>Iniciar Sesión</h1>
+            <p class="login-subtitle">Accede a tu cuenta UAMarket</p>
+        </div>
+
+        <!-- MENSAJE DE ERROR (si existe) -->
+        @if(ErrorMsg != "") 
+        { 
+            <div class="alert-error">
+                @ErrorMsg
+            </div> 
+        }
+
+        <!-- FORMULARIO MEJORADO -->
+        <form method="post" class="login-form">
+            <div class="form-group">
+                <label for="CIF">
+                    CIF UAM
+                </label>
+                <input type="text" 
+                       asp-for="CIF" 
+                       placeholder="Ej: 25010380" 
+                       class="form-control-elegant"
+                       required />
+            </div>
+
+            <div class="form-group">
+                <label for="PIN">
+                    Contraseña
+                </label>
+                <input type="password" 
+                       asp-for="PIN" 
+                       placeholder="Tu PIN secreto" 
+                       class="form-control-elegant"
+                       required />
+                <small class="form-hint">Mínimo 4 caracteres</small>
+            </div>
+
+            <button type="submit" class="btn-login">
+                Acceder a mi Cuenta
+            </button>
+        </form>
+
+        <!-- ENLACE AL REGISTRO -->
+        <div class="login-footer">
+            <p>¿Aún no tienes cuenta? 
+                <a href="/Registro" class="register-link">
+                    ¡Únete a la comunidad!
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- ========== ESTILOS PARA EL LOGIN ========== -->
+<style>
+    /* CONTENEDOR PRINCIPAL */
+    .login-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    /* TARJETA DEL LOGIN */
+    .login-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        width: 100%;
+        max-width: 450px;
+        box-shadow: 0 10px 40px rgba(0, 51, 102, 0.15);
+        border: 1px solid rgba(0, 86, 179, 0.1);
+    }
+
+    /* ENCABEZADO */
+    .login-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .jaguar-icon {
+        font-size: 50px;
+        margin-bottom: 15px;
+    }
+
+    .login-header h1 {
+        color: #003366;
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .login-subtitle {
+        color: #6c757d;
+        font-size: 16px;
+    }
+
+    /* FORMULARIO */
+    .login-form {
+        margin-top: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #003366;
+        font-weight: 500;
+        margin-bottom: 8px;
+        font-size: 15px;
+    }
+
+    .input-icon {
+        font-size: 18px;
+    }
+
+    .form-control-elegant {
+        width: 100%;
+        padding: 14px 20px;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .form-control-elegant:focus {
+        outline: none;
+        border-color: #4d94ff;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(77, 148, 255, 0.15);
+    }
+
+    .form-hint {
+        display: block;
+        color: #6c757d;
+        font-size: 13px;
+        margin-top: 5px;
+        margin-left: 28px;
+    }
+
+    /* BOTÓN */
+    .btn-login {
+        width: 100%;
+        background: linear-gradient(135deg, #003366 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 12px;
+        font-size: 17px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 86, 179, 0.3);
+    }
+
+    .btn-icon {
+        font-size: 20px;
+    }
+
+    /* PIE DEL LOGIN */
+    .login-footer {
+        margin-top: 30px;
+        text-align: center;
+        color: #6c757d;
+        font-size: 15px;
+    }
+
+    .register-link {
+        color: #0056b3;
+        font-weight: bold;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .register-link:hover {
+        color: #003366;
+        text-decoration: underline;
+    }
+
+    .home-link {
+        margin-top: 15px;
+        font-size: 14px;
+    }
+
+    .home-link a {
+        color: #6c757d;
+        text-decoration: none;
+    }
+
+    .home-link a:hover {
+        color: #003366;
+    }
+
+    /* MENSAJE DE ERROR */
+    .alert-error {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 25px;
+        font-weight: 500;
+        animation: fadeIn 0.5s ease;
+    }
+
+    /* ANIMACIÓN */
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* RESPONSIVE */
+    @@media (max-width: 500px) {
+        .login-card {
+            padding: 30px 20px;
+        }
+        
+        .login-header h1 {
+            font-size: 24px;
+        }
+        
+        .jaguar-icon {
+            font-size: 40px;
+        }
+    }
+</style>

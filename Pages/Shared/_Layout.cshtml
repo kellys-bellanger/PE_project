@@ -1,0 +1,279 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        /* ESTILOS TEMPORALES PARA EL HEADER */
+        .uam-header {
+            background: linear-gradient(135deg, #003366 0%, #0056b3 100%);
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .uam-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            height: 60px;
+        }
+        
+        .nav-left {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .nav-btn {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* LOGO CENTRADO PERFECTO */
+        .uam-logo {
+            color: white;
+            text-decoration: none;
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-align: center;
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            white-space: nowrap;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            justify-content: flex-end;
+        }
+        
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+        
+        .user-welcome {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .user-name {
+            color: #FFD700;
+            font-weight: bold;
+        }
+        
+        /* CORAZÓN DE FAVORITOS CON CONTADOR */
+        .heart-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+            position: relative; /* IMPORTANTE para el contador */
+        }
+        
+        .heart-icon {
+            font-size: 20px;
+            color: #ff4757;
+        }
+        
+        .heart-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        /* CONTADOR DE FAVORITOS */
+        .favoritos-contador {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .uam-footer {
+            background: #003366;
+            color: white;
+            padding: 2rem 1rem;
+            margin-top: 4rem;
+            text-align: center;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-content p {
+            margin: 5px 0;
+            color: #adb5bd;
+        }
+        
+        /* ESTILOS PARA EL CUERPO */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        main {
+            min-height: 70vh;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER CON BOTONES A LA IZQUIERDA -->
+    <header class="uam-header">
+        <nav class="uam-nav">
+            <!-- BOTONES A LA IZQUIERDA -->
+            <div class="nav-left">
+                @if (UAMarketSimple.Datos.UsuarioLogueado == null)
+                {
+                    <!-- MODO INVITADO -->
+                    var httpContext = ViewContext.HttpContext;
+                    var request = httpContext.Request;
+                    var path = request.Path.Value ?? "";
+                    
+                    bool enLogin = path.Contains("Login", StringComparison.OrdinalIgnoreCase);
+                    bool enRegistro = path.Contains("Registro", StringComparison.OrdinalIgnoreCase);
+                    
+                    @if (!enLogin)
+                    {
+                        <a href="/Registro" class="nav-btn">Registrarse</a>
+                    }
+                    
+                    @if (!enLogin)
+                    {
+                        <a href="/Login" class="nav-btn">Iniciar Sesión</a>
+                    }
+                    
+                    <a href="/" class="nav-btn">Inicio</a>
+                }
+            else
+            {
+// Obtener la página actual
+var httpContext = ViewContext.HttpContext;
+var request = httpContext.Request;
+var path = request.Path.Value ?? "";
+
+bool enMisProductos = path.Contains("MisProductos", StringComparison.OrdinalIgnoreCase);
+bool enFavoritos = path.Contains("Favoritos", StringComparison.OrdinalIgnoreCase);
+bool enPaginaEspecial = enMisProductos || enFavoritos; // ← NUEVO
+                    
+                    <a href="/Salir" class="nav-btn">Salir de la cuenta</a>
+                    
+                    @if (enPaginaEspecial)
+{
+    <!-- SI ESTAMOS EN MIS PRODUCTOS O FAVORITOS, MOSTRAR "INICIO" -->
+    <a href="/" class="nav-btn" style="background: linear-gradient(135deg, #FFD700 0%, #ffed4e 100%); color: #003366; font-weight: bold;">
+        Inicio
+    </a>
+}
+else
+{
+    <!-- SI NO ESTAMOS EN PÁGINAS ESPECIALES, MOSTRAR "MIS PRODUCTOS" -->
+    <a href="/MisProductos" class="nav-btn" style="background: linear-gradient(135deg, #FFD700 0%, #ffed4e 100%); color: #003366; font-weight: bold;">
+        Mis Productos
+    </a>
+}
+                }
+            </div>
+            
+            <!-- LOGO CENTRAL PERFECTO -->
+            <a href="/" class="uam-logo">U A M A R K E T</a>
+            
+            <!-- SECCIÓN USUARIO CON CORAZÓN A LA DERECHA -->
+            <div class="nav-right">
+                @if (UAMarketSimple.Datos.UsuarioLogueado != null)
+                {
+                    <div class="user-section">
+                        <div class="user-welcome">
+                            Hola, <span class="user-name">@UAMarketSimple.Datos.UsuarioLogueado.Nombre</span>
+                        </div>
+                        <a href="/Favoritos" class="heart-btn" title="Mis Favoritos">
+                            <div class="heart-icon">❤️</div>
+                            @{
+                                var favoritosCount = UAMarketSimple.Datos.ObtenerFavoritos().Count;
+                                if (favoritosCount > 0)
+                                {
+                                    <span class="favoritos-contador">@favoritosCount</span>
+                                }
+                            }
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="user-welcome">
+                        Hola, <span class="user-name">Invitado</span>
+                    </div>
+                }
+            </div>
+        </nav>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main>
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER SIMPLE -->
+    <footer class="uam-footer">
+        <div class="footer-content">
+            <p>© 2025 UAMarket - Plataforma exclusiva para estudiantes UAM</p>
+            <p>Universidad Americana - Programación Estructurada</p>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,354 @@
+@page
+@using UAMarketSimple
+@{
+    ViewData["Title"] = "Mis Favoritos";
+}
+
+@functions {
+    public List<Producto> ProductosFavoritos { get; set; } = new();
+    
+    [BindProperty]
+    public string ProductoId { get; set; } = "";
+
+    public IActionResult OnGet()
+    {
+        if (Datos.UsuarioLogueado == null) return RedirectToPage("/Login");
+        
+        ProductosFavoritos = Datos.ObtenerFavoritos();
+        return Page();
+    }
+
+    public IActionResult OnPostToggleFavorito()
+    {
+        if (Datos.UsuarioLogueado == null) return RedirectToPage("/Login");
+        
+        if (!string.IsNullOrEmpty(ProductoId))
+        {
+            Datos.ToggleFavorito(ProductoId);
+        }
+        
+        return RedirectToPage("/Favoritos");
+    }
+}
+
+<!-- ========== DISEÑO DE FAVORITOS ========== -->
+<div class="favoritos-container">
+    <div class="favoritos-header">
+        <h1>Mis Favoritos</h1>
+        <p class="favoritos-subtitle">
+            Tus productos guardados: <span class="favoritos-count">@ProductosFavoritos.Count</span>
+        </p>
+    </div>
+
+    @if (ProductosFavoritos.Count == 0)
+    {
+        <div class="favoritos-vacio">
+            <div class="corazon-grande">💔</div>
+            <h3>No tienes productos favoritos</h3>
+            <p>¡Da clic en el corazón ❤️ de los productos que te interesen!</p>
+            <a href="/" class="btn-explorar">Explorar Productos</a>
+        </div>
+    }
+    else
+    {
+        <!-- GRID DE PRODUCTOS FAVORITOS - 5 POR FILA -->
+        <div class="favoritos-grid-5">
+            @foreach (var p in ProductosFavoritos)
+            {
+                <div class="producto-favorito-card-small">
+                    <!-- IMAGEN -->
+                    <div class="favorito-imagen-container-small">
+                        <img src="~/imagenes/@p.FotoUrl" 
+                             alt="@p.Nombre"
+                             class="favorito-imagen-small"
+                             onerror="this.src='https://via.placeholder.com/300x200/003366/FFFFFF?text=UAM'" />
+                        <div class="favorito-badge-small">❤️</div>
+                    </div>
+                    
+                    <!-- INFORMACIÓN -->
+                    <div class="favorito-info-small">
+                        <h3 class="favorito-nombre-small">@p.Nombre</h3>
+                        <p class="favorito-precio-small">C$ @p.Precio</p>
+                        
+                        <!-- BOTONES -->
+                        <div class="favorito-actions-small">
+                            <a href="https://wa.me/505@(p.Telefono)" 
+                               class="btn-contactar-favorito-small" 
+                               target="_blank" 
+                               title="Contactar por WhatsApp">
+                               Contactar
+                            </a>
+                            
+                            <!-- BOTÓN QUITAR FUNCIONAL -->
+                            <form method="post" asp-page-handler="ToggleFavorito" style="display: inline;">
+                                <input type="hidden" name="productoId" value="@p.Id" />
+                                <button type="submit" class="btn-quitar-favorito-small" 
+                                        title="Quitar de favoritos"
+                                        onclick="return confirm('¿Quitar este producto de favoritos?')">
+                                    Quitar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- ========== ESTILOS PARA FAVORITOS (5 POR FILA) ========== -->
+<style>
+    /* CONTENEDOR PRINCIPAL */
+    .favoritos-container {
+        padding: 30px 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* ENCABEZADO */
+    .favoritos-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f7ff;
+    }
+
+    .favoritos-header h1 {
+        color: #ff6b6b;
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .favoritos-subtitle {
+        color: #666;
+        font-size: 16px;
+    }
+
+    .favoritos-count {
+        background: #ff6b6b;
+        color: white;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    /* ESTADO VACÍO */
+    .favoritos-vacio {
+        text-align: center;
+        padding: 50px 20px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        margin: 20px 0;
+    }
+
+    .corazon-grande {
+        font-size: 70px;
+        margin-bottom: 15px;
+        opacity: 0.3;
+    }
+
+    .favoritos-vacio h3 {
+        color: #003366;
+        margin-bottom: 8px;
+        font-size: 20px;
+    }
+
+    .favoritos-vacio p {
+        color: #666;
+        margin-bottom: 25px;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .btn-explorar {
+        background: linear-gradient(135deg, #003366 0%, #0056b3 100%);
+        color: white;
+        padding: 10px 25px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        display: inline-block;
+        font-size: 14px;
+    }
+
+    /* GRID DE FAVORITOS - 5 POR FILA */
+    .favoritos-grid-5 {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    /* TARJETA DE PRODUCTO FAVORITO PEQUEÑA */
+    .producto-favorito-card-small {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .producto-favorito-card-small:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        border-color: #ffcdd2;
+    }
+
+    .favorito-imagen-container-small {
+        height: 140px;
+        overflow: hidden;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .favorito-imagen-small {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .producto-favorito-card-small:hover .favorito-imagen-small {
+        transform: scale(1.05);
+    }
+
+    .favorito-badge-small {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 107, 107, 0.9);
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+
+    .favorito-info-small {
+        padding: 15px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .favorito-nombre-small {
+        color: #003366;
+        font-size: 15px;
+        font-weight: bold;
+        margin-bottom: 8px;
+        line-height: 1.3;
+        height: 38px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .favorito-precio-small {
+        color: #28a745;
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .favorito-actions-small {
+        display: flex;
+        gap: 8px;
+        margin-top: auto;
+    }
+
+    .btn-contactar-favorito-small {
+        flex: 1;
+        background: #25D366;
+        color: white;
+        border: none;
+        padding: 8px;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-contactar-favorito-small:hover {
+        background: #128C7E;
+        transform: scale(1.05);
+    }
+
+    .btn-quitar-favorito-small {
+        flex: 1;
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .btn-quitar-favorito-small:hover {
+        background: #c82333;
+        transform: scale(1.05);
+    }
+
+    /* RESPONSIVE */
+    @@media (max-width: 1200px) {
+        .favoritos-grid-5 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    @@media (max-width: 992px) {
+        .favoritos-grid-5 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .favoritos-header h1 {
+            font-size: 28px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .favoritos-grid-5 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .favorito-imagen-container-small {
+            height: 120px;
+        }
+    }
+
+    @@media (max-width: 500px) {
+        .favoritos-grid-5 {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .favoritos-container {
+            padding: 20px 15px;
+        }
+        
+        .producto-favorito-card-small {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+    }
+</style>
